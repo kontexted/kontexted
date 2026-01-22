@@ -1259,8 +1259,8 @@ export default function FolderTree({
 
   const handleSignOut = useCallback(async () => {
     await authClient.signOut();
-    router.push("/");
-  }, [router]);
+    window.location.href = "/";
+  }, []);
 
   return (
     <>
