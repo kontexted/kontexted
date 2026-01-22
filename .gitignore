@@ -1,0 +1,4 @@
+node_modules
+*.bun-build
+.DS_Store
+.idea

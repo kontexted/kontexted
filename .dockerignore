@@ -1,0 +1,32 @@
+.git
+node_modules
+*.log
+.next
+dist
+build
+.env
+.env.local
+.env.production.local
+.env.test.local
+.DS_Store
+
+**/node_modules
+**/.pnp
+**/.yarn
+**/.pnpm-store
+
+# next / build outputs
+**/.next
+**/dist
+**/build
+**/.turbo
+**/.cache
+
+# misc
+.git
+.gitignore
+.DS_Store
+**/*.log
+**/.env*
+*.bun-build
+**/*.bun-build
