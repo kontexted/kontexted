@@ -1,10 +1,9 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
 
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { folders, workspaces } from "@kontexted/db";
+import { folders } from "@kontexted/db";
 import { parseSlug, parsePublicId } from "@/lib/params";
 import { isValidFolderName } from "@/lib/folder-name";
 import { resolveWorkspaceId, resolveFolderId } from "@/lib/resolvers";

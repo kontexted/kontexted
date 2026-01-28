@@ -28,8 +28,6 @@ interface NoteHistoryProps {
 }
 
 export default function NoteHistory({
-  workspaceId,
-  noteId,
   title,
   name,
   revisionHistory,

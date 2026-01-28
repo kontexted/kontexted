@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { folders, notes } from "@kontexted/db";
+import { notes } from "@kontexted/db";
 import { parseSlug, parsePublicId } from "@/lib/params";
 import { resolveWorkspaceId, resolveNoteId, resolveFolderId } from "@/lib/resolvers";
 import { workspaceEventHub } from "@/lib/sse-hub";
