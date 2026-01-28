@@ -190,7 +190,7 @@ export default function MarkdownUpload({
       setUploadMode('files');
       processFiles(files);
     }
-  }, [traverseFileSystemEntry]);
+  }, [traverseFileSystemEntry, processFiles]);
 
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const mode = event.target.id === 'markdown-upload-files' ? 'files' : 'folder';

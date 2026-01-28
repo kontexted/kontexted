@@ -118,7 +118,7 @@ const parseDragId = (value: string | number): DragItem | null => {
 const useMounted = () => {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
   }, []);
   return mounted;
 };
@@ -129,28 +129,6 @@ const collectFolderIds = (nodes: FolderNode[], acc: number[] = []) => {
     collectFolderIds(node.children, acc);
   });
   return acc;
-};
-
-const useFolderMaps = (tree: WorkspaceTree) => {
-  return useMemo(() => {
-    const noteFolderMap = new Map<number, number | null>();
-
-    const traverse = (nodes: FolderNode[]) => {
-      nodes.forEach((node) => {
-        node.notes.forEach((note) => {
-          noteFolderMap.set(note.id, note.folderId ?? null);
-        });
-        traverse(node.children);
-      });
-    };
-
-    traverse(tree.folders);
-    tree.rootNotes.forEach((note) => {
-      noteFolderMap.set(note.id, null);
-    });
-
-    return { noteFolderMap };
-  }, [tree]);
 };
 
 type TreeItem =
@@ -219,21 +197,6 @@ const useDragLabels = (tree: WorkspaceTree): DragLabelMap => {
 
     return { folderDisplayNames, folderNames, noteTitles, noteNames };
   }, [tree]);
-};
-
-const isDescendant = (
-  folderId: number,
-  candidateParentId: number | null,
-  parentMap: Map<number, number | null>
-) => {
-  let current = candidateParentId;
-  while (current != null) {
-    if (current === folderId) {
-      return true;
-    }
-    current = parentMap.get(current) ?? null;
-  }
-  return false;
 };
 
 const NoteRow = ({
@@ -668,7 +631,6 @@ export default function FolderTree({
   const [createWorkspaceError, setCreateWorkspaceError] = useState<string | null>(null);
   const [uploadTarget, setUploadTarget] = useState<{ folderPublicId: string | null } | null>(null);
 
-  const { noteFolderMap } = useFolderMaps(tree);
   const dragLabels = useDragLabels(tree);
 
   useEffect(() => {
@@ -822,13 +784,42 @@ export default function FolderTree({
     return result;
   }, []);
 
+  const openDialog = useCallback((nextDialog: DialogState) => {
+    setDialog(nextDialog);
+    if (nextDialog.mode === "rename-folder") {
+      setDialogDisplayName(nextDialog.initialDisplayName);
+      setDialogName(nextDialog.initialName);
+    } else if (nextDialog.mode === "rename-note") {
+      setDialogDisplayName(nextDialog.initialTitle);
+      setDialogName(nextDialog.initialName);
+    } else {
+      setDialogDisplayName("");
+      setDialogName("");
+    }
+    setDialogError(null);
+  }, []);
+
+  const closeCreateWorkspaceModal = useCallback(() => {
+    setIsCreateWorkspaceOpen(false);
+    setNewWorkspaceName("");
+    setCreateWorkspaceError(null);
+  }, []);
+
+  const closeDialog = useCallback(() => {
+    setDialog(null);
+    setDialogDisplayName("");
+    setDialogName("");
+    setDialogError(null);
+    setDialogSubmitting(false);
+  }, []);
+
   const handleRootCreateFolder = useCallback(() => {
     openDialog({ mode: "create-folder", targetFolderPublicId: null });
-  }, []);
+  }, [openDialog]);
 
   const handleRootCreateNote = useCallback(() => {
     openDialog({ mode: "create-note", targetFolderPublicId: null });
-  }, []);
+  }, [openDialog]);
 
   const handleRootUpload = useCallback(() => {
     setUploadTarget({ folderPublicId: null });
@@ -836,11 +827,11 @@ export default function FolderTree({
 
   const handleFolderCreateFolder = useCallback((folderPublicId: string) => {
     openDialog({ mode: "create-folder", targetFolderPublicId: folderPublicId });
-  }, []);
+  }, [openDialog]);
 
   const handleFolderCreateNote = useCallback((folderPublicId: string) => {
     openDialog({ mode: "create-note", targetFolderPublicId: folderPublicId });
-  }, []);
+  }, [openDialog]);
 
   const handleFolderRename = useCallback((folderPublicId: string) => {
     const folderNode = findFolderByPublicId(folderPublicId, tree.folders);
@@ -853,7 +844,7 @@ export default function FolderTree({
       initialDisplayName: folderNode.displayName,
       initialName: folderNode.name,
     });
-  }, [tree, findFolderByPublicId]);
+  }, [openDialog, tree, findFolderByPublicId]);
 
   const handleFolderDelete = useCallback((folderPublicId: string) => {
     const folderNode = findFolderByPublicId(folderPublicId, tree.folders);
@@ -864,7 +855,7 @@ export default function FolderTree({
       targetPublicId: folderPublicId,
       displayName: folderNode.displayName,
     });
-  }, [tree, findFolderByPublicId]);
+  }, [openDialog, tree, findFolderByPublicId]);
 
   const handleFolderUpload = useCallback((folderPublicId: string) => {
     setUploadTarget({ folderPublicId: folderPublicId });
@@ -882,7 +873,7 @@ export default function FolderTree({
       initialTitle: note.title,
       initialName: note.name,
     });
-  }, [tree, collectAllNotes]);
+  }, [openDialog, tree, collectAllNotes]);
 
   const handleNoteDelete = useCallback((notePublicId: string) => {
     const allNotes = [...collectAllNotes(tree.folders), ...tree.rootNotes];
@@ -894,7 +885,7 @@ export default function FolderTree({
       targetPublicId: notePublicId,
       title: note.title,
     });
-  }, [tree, collectAllNotes]);
+  }, [openDialog, tree, collectAllNotes]);
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveDrag(parseDragId(event.active.id));
@@ -965,35 +956,6 @@ export default function FolderTree({
       source.close();
     };
   }, [hasWorkspace, refreshTree, workspaceSlug]);
-
-  const openDialog = useCallback((nextDialog: DialogState) => {
-    setDialog(nextDialog);
-    if (nextDialog.mode === "rename-folder") {
-      setDialogDisplayName(nextDialog.initialDisplayName);
-      setDialogName(nextDialog.initialName);
-    } else if (nextDialog.mode === "rename-note") {
-      setDialogDisplayName(nextDialog.initialTitle);
-      setDialogName(nextDialog.initialName);
-    } else {
-      setDialogDisplayName("");
-      setDialogName("");
-    }
-    setDialogError(null);
-  }, []);
-
-  const closeCreateWorkspaceModal = useCallback(() => {
-    setIsCreateWorkspaceOpen(false);
-    setNewWorkspaceName("");
-    setCreateWorkspaceError(null);
-  }, []);
-
-  const closeDialog = useCallback(() => {
-    setDialog(null);
-    setDialogDisplayName("");
-    setDialogName("");
-    setDialogError(null);
-    setDialogSubmitting(false);
-  }, []);
 
   const getDialogCopy = (state: DialogState) => {
     if (state.mode === "create-folder") {
@@ -1196,13 +1158,13 @@ export default function FolderTree({
 
         await refreshTree();
         closeDialog();
-      } catch (error) {
+      } catch {
         setDialogError("Something went wrong. Please try again.");
       } finally {
         setDialogSubmitting(false);
       }
     },
-    [closeDialog, dialog, dialogSubmitting, dialogDisplayName, dialogName, refreshTree, workspaceSlug, selectedNotePublicId, queryString, router]
+    [closeDialog, dialog, dialogSubmitting, dialogDisplayName, dialogName, refreshTree, workspaceSlug, selectedNotePublicId, selectedFolderPublicId, queryString, router]
   );
 
   const handleCreateWorkspace = useCallback(
@@ -1561,13 +1523,13 @@ export default function FolderTree({
               {dialog.mode === "delete-note" ? (
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">
-                    Are you sure you want to delete "{dialog.title}"? This action cannot be undone.
+                    Are you sure you want to delete &ldquo;{dialog.title}&rdquo;? This action cannot be undone.
                   </p>
                 </div>
               ) : dialog.mode === "delete-folder" ? (
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">
-                    Are you sure you want to delete "{dialog.displayName}"? This will also delete all notes and subfolders. This action cannot be undone.
+                    Are you sure you want to delete &ldquo;{dialog.displayName}&rdquo;? This will also delete all notes and subfolders. This action cannot be undone.
                   </p>
                 </div>
               ) : (

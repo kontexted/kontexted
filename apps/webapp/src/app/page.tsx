@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { createAuthClient } from "better-auth/react";
 import { genericOAuthClient } from "better-auth/client/plugins";
 import { useEffect } from "react";
+import Image from "next/image";
 
 import logo from "./logo.png";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,7 @@ export default function Home() {
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
           <div className="flex flex-col items-center gap-2 text-center">
-            <img src={logo.src} alt="Kontexted" className="h-8 w-auto" />
+            <Image src={logo} alt="Kontexted" width={32} height={32} className="h-8 w-auto" />
             <h1 className="text-xl font-bold">Sign in</h1>
             <p className="text-sm text-muted-foreground">
               Access your workspaces and start collaborating.

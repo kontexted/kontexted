@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { desc, eq } from "drizzle-orm";
+import { desc } from "drizzle-orm";
 
 import { auth } from "@/auth";
 import { db } from "@/db";
