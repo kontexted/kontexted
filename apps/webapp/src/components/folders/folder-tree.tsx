@@ -429,11 +429,11 @@ const FolderRow = ({
   dragEnabled: boolean;
   labelMode: TreeLabelMode;
   queryString: string;
-  onCreateFolder: () => void;
-  onCreateNote: () => void;
-  onRenameFolder: () => void;
-  onDeleteFolder: () => void;
-  onUpload: () => void;
+  onCreateFolder: (folderPublicId: string) => void;
+  onCreateNote: (folderPublicId: string) => void;
+  onRenameFolder: (folderPublicId: string) => void;
+  onDeleteFolder: (folderPublicId: string) => void;
+  onUpload: (folderPublicId: string) => void;
   onRenameNote: (notePublicId: string) => void;
   onDeleteNote: (notePublicId: string) => void;
 }) => {
@@ -497,11 +497,11 @@ const FolderRow = ({
           </div>
         </ContextMenuTrigger>
         <FolderContextMenu
-          onCreateFolder={onCreateFolder}
-          onCreateNote={onCreateNote}
-          onRenameFolder={onRenameFolder}
-          onDeleteFolder={onDeleteFolder}
-          onUpload={onUpload}
+          onCreateFolder={() => onCreateFolder(node.publicId)}
+          onCreateNote={() => onCreateNote(node.publicId)}
+          onRenameFolder={() => onRenameFolder(node.publicId)}
+          onDeleteFolder={() => onDeleteFolder(node.publicId)}
+          onUpload={() => onUpload(node.publicId)}
         />
       </ContextMenu>
       {isExpanded ? (
@@ -1377,11 +1377,11 @@ export default function FolderTree({
                           dragEnabled={dragEnabled}
                           labelMode={labelMode}
                           queryString={queryString}
-                          onCreateFolder={() => handleFolderCreateFolder(item.node.publicId)}
-                          onCreateNote={() => handleFolderCreateNote(item.node.publicId)}
-                          onRenameFolder={() => handleFolderRename(item.node.publicId)}
-                          onDeleteFolder={() => handleFolderDelete(item.node.publicId)}
-                          onUpload={() => handleFolderUpload(item.node.publicId)}
+                          onCreateFolder={handleFolderCreateFolder}
+                          onCreateNote={handleFolderCreateNote}
+                          onRenameFolder={handleFolderRename}
+                          onDeleteFolder={handleFolderDelete}
+                          onUpload={handleFolderUpload}
                           onRenameNote={handleNoteRename}
                           onDeleteNote={handleNoteDelete}
                         />
