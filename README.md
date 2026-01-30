@@ -3,6 +3,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Status: Alpha](https://img.shields.io/badge/Status-Alpha%2FEarly%20Access-orange.svg)](https://github.com/kontexted/kontexted)
 
+| ![img1](https://github.com/user-attachments/assets/23d8af50-5d75-4d45-ab07-c31aa934c9f3) | ![img2](https://github.com/user-attachments/assets/2ae5dcfe-7f67-4ce1-9bb8-e2dd114045df) |
+| -- | -- |
+
+
 **Collaborative markdown knowledge base for AI-assisted development.**
 
 Kontexted solves the problem of fragmented markdown context files when working with AI coding assistants like opencode, Claude Code, or Codex. Instead of scattering LLM-generated specs, architecture docs, and conditional context files across repositories, Kontexted provides a centralized, searchable, and versioned knowledge base that your entire team can collaborate on.
